@@ -1,4 +1,4 @@
-# -*- coding: utf -*-
+# -*- coding: utf-8 -*-
 
 import json
 import requests
@@ -12,7 +12,8 @@ class Meli(object):
     access_token = None
     app_id = None
     app_secret = None
-    base_url = 'https://api.mercadolibre.com'
+    base_url = 'https://api.mercadolibre.com/'
+    data = None
 
     def __init__(self, appid=None, appsecret=None):
         logging.info('initiating meli...')
@@ -21,16 +22,25 @@ class Meli(object):
         if appsecret:
             self.app_secret = appsecret
 
+    def __nonzero_(self):
+
+        if self.status not in [200, 201, 202, 204]:
+            return False
+        return True
+
     def make_request(self, method='GET', path=None, data=None, **params):
 
         url = self.compose_url(path, **params)
         if method == 'GET':
-            return self.parse_response(requests.get(url))
+            self.data = self.parse_response(requests.get(url))
         elif method == 'POST':
-            return self.parse_response(requests.post(url, data=data))
+            if isinstance(data, dict) or isinstance(data, list):
+                data = json.dumps(data)
+            self.data = self.parse_response(requests.post(url, data=data))
         else:
             logging.info('not yet supported')
-            return False
+
+        return self
 
     def compose_url(self, path, **params):
         if params:
@@ -39,7 +49,7 @@ class Meli(object):
                 params.pop('access')
             url = self.base_url + path + '?' + urlencode(params)
         else:
-            url =  self.base_url + path
+            url = self.base_url + path
 
         logging.info(url)
         return url
@@ -58,16 +68,14 @@ class Meli(object):
         self.access_token = token
 
     def parse_response(self, response):
-
+        self.status = response.status_code
         try:
             data = json.loads(response.text)
         except:
             # not json
-            data = data
+            data = {
+                'status': response.status_code,
+                'data': response.text
+            }
 
-        output = {
-            'status': response.status_code,
-            'data':  data
-        }
-
-        return output
+        return data
