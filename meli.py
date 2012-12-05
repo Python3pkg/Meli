@@ -7,12 +7,12 @@ import logging
 logging.basicConfig(filename='meli.log', level=logging.INFO)
 
 
-class Meli(Object):
+class Meli(object):
 
     access_token = None
     app_id = None
     app_secret = None
-    base_url = 'https://api.mercadolibre.com/'
+    base_url = 'https://api.mercadolibre.com'
 
     def __init__(self, appid=None, appsecret=None):
         logging.info('initiating meli...')
@@ -25,24 +25,49 @@ class Meli(Object):
 
         url = self.compose_url(path, **params)
         if method == 'GET':
-            return requests.get(url)
+            return self.parse_response(requests.get(url))
         elif method == 'POST':
-            return requests.post(url, data=data)
+            return self.parse_response(requests.post(url, data=data))
         else:
             logging.info('not yet supported')
             return False
 
     def compose_url(self, path, **params):
         if params:
-            return self.base_url + path + '?' + urlencode(params)
+            if 'access' in params:
+                params['access_token'] = self.get_access_token()
+                params.pop('access')
+            url = self.base_url + path + '?' + urlencode(params)
         else:
-            return self.base_url + path
+            url =  self.base_url + path
+
+        logging.info(url)
+        return url
 
     def get(self, path, **params):
-
         return self.make_request('GET', path, **params)
 
+    def post(self, path, data=None, **params):
+        return self.make_request('POST', path, data, **params)
 
+    def get_access_token(self):
+        if self.access_token:
+            return self.access_token
 
+    def set_access_token(self, token):
+        self.access_token = token
 
+    def parse_response(self, response):
 
+        try:
+            data = json.loads(response.text)
+        except:
+            # not json
+            data = data
+
+        output = {
+            'status': response.status_code,
+            'data':  data
+        }
+
+        return output
