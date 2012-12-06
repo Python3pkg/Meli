@@ -11,7 +11,7 @@ class BasicMeliTests(unittest.TestCase):
 
     def setUp(self):
 
-        self.access_token = 'APP_USR-3975401489804986-120613-5a8004f28c883e8ea0d7361757bf20ff__I_L__-79576867'
+        self.access_token = 'PLACE_YOUR_ACCESS_TOKEN_HERE'
         self.meli = meli.Meli(access_token=self.access_token)
 
     def test_001_get_product(self):
@@ -124,8 +124,6 @@ class BasicMeliTests(unittest.TestCase):
             'status': 'closed'
         }
         self.meli.put('items/%s' % globals()['product_id'], data=status, access=True)
-
-
 
 
 if __name__ == '__main__':
