@@ -12,11 +12,14 @@ logging.basicConfig(filename='meli.log', level=logging.INFO)
 class ValidationError(Exception):
     pass
 
-
 class GenericError(Exception):
     pass
 
 class NotAllowed(Exception):
+    pass
+
+class InternalError(Exception):
+    logging.error('haha!')
     pass
 
 class Meli(object):
@@ -127,7 +130,6 @@ class Meli(object):
                 logging.warn('Exception %s not found, expected?' % name)
                 return None
 
-            logging.error('%s')
             raise ex
 
     def parse_exception_name(self, name):
