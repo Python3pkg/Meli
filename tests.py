@@ -3,7 +3,9 @@
 import unittest
 import meli
 import random
+import time
 
+globals()['product_id'] = None
 
 class BasicMeliTests(unittest.TestCase):
 
@@ -101,22 +103,27 @@ class BasicMeliTests(unittest.TestCase):
 
         Product = self.meli.post('items/', product_data, access=True)
         self.assertTrue(Product)
-        self.id = Product.data['id']
+        globals()['product_id'] = Product.data['id']
 
     def test_008_modify_price_item(self):
         preco = random.choice(range(250, 350))
         product_modify = {
             'price': preco
         }
-        Product = self.meli.put('items/%s' % self.id, product_modify, access=True)
+        Product = self.meli.put('items/%s' % globals()['product_id'], product_modify, access=True)
         self.assertTrue(Product)
         self.assertEqual(Product.data['price'], preco)
 
     def test_finish_product(self):
+        while True:
+            Product = self.meli.get('items/%s' % globals()['product_id'])
+            if Product.data.get('status') != 'not_yet_active':
+                break
+            time.sleep(5)
         status = {
             'status': 'closed'
         }
-        self.meli.put('items/%s' % self.id, data=status, access=True)
+        self.meli.put('items/%s' % globals()['product_id'], data=status, access=True)
 
 
 

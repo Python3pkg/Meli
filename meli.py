@@ -129,7 +129,6 @@ class Meli(object):
             except AttributeError:
                 logging.warn('Exception %s not found, expected?' % name)
                 return None
-
             raise ex
 
     def parse_exception_name(self, name):
