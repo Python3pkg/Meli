@@ -16,13 +16,15 @@ class ValidationError(Exception):
 class GenericError(Exception):
     pass
 
+class NotAllowed(Exception):
+    pass
 
 class Meli(object):
 
     access_token = None
     app_id = None
     app_secret = None
-    base_url = 'https://v1.api.mercadolibre.com/'
+    base_url = 'https://api.mercadolibre.com/'
     status_code = None
     success_status = [200, 201, 202, 204]
 
@@ -53,6 +55,14 @@ class Meli(object):
                     logging.error('Invalid data?')
                     return self
             self.data = self.parse_response(requests.post(url, data=data))
+        elif method == 'PUT':
+            if isinstance(data, dict) or isinstance(data, list):
+                try:
+                    data = json.dumps(data)
+                except:
+                    logging.error('Invalid data?')
+                    return self
+            self.data = self.parse_response(requests.put(url, data=data))
         elif method == 'OPTIONS':
             return self.show_help(self.parse_response(requests.options(url)))
         else:
@@ -85,6 +95,9 @@ class Meli(object):
     def post(self, path, data=None, **params):
         return self.make_request('POST', path, data, **params)
 
+    def put(self, path, data, **params):
+        return self.make_request('PUT', path, data, **params)
+
     def help(self, path, **params):
         return self.make_request('OPTIONS', path, **params)
 
@@ -99,7 +112,6 @@ class Meli(object):
         if not data:
             logging.info('Data is empty')
             return None
-        print data
         if not self:
             logging.info('Yeah, we have a error!')
             name = self.parse_exception_name(data.get('error', 'generic_error'))
