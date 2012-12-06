@@ -68,15 +68,15 @@ class Meli(object):
                 else:
                     logging.warn('Empty or invalid access_token')
                 params.pop('access')
-                # joining the lists with ,
-                for k, v in params.items():
-                    if isinstance(v, list):
-                        params[k] = ','.join(v)
+            # joining the lists with ,
+            for k, v in params.items():
+                if isinstance(v, list):
+                    params[k] = ','.join(v)
             url = self.base_url + path + '?' + urlencode(params)
         else:
             url = self.base_url + path
 
-        logging.info(url)
+        logging.info("URL: %s" % url)
         return url
 
     def get(self, path, **params):
