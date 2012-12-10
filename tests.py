@@ -4,8 +4,8 @@ import unittest
 import meli
 import random
 import time
-
 globals()['product_id'] = None
+
 
 class BasicMeliTests(unittest.TestCase):
 
@@ -119,11 +119,16 @@ class BasicMeliTests(unittest.TestCase):
             Product = self.meli.get('items/%s' % globals()['product_id'])
             if Product.data.get('status') != 'not_yet_active':
                 break
-            time.sleep(5)
+            time.sleep(10)
         status = {
             'status': 'closed'
         }
         self.meli.put('items/%s' % globals()['product_id'], data=status, access=True)
+
+    def test_product_status(self):
+        produto = self.meli.get('items/%s' % globals()['product_id'])
+        self.assertTrue(produto)
+        self.assertEqual(produto.data['status'], 'closed')
 
 
 if __name__ == '__main__':

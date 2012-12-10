@@ -12,15 +12,19 @@ logging.basicConfig(filename='meli.log', level=logging.INFO)
 class ValidationError(Exception):
     pass
 
+
 class GenericError(Exception):
     pass
+
 
 class NotAllowed(Exception):
     pass
 
+
 class InternalError(Exception):
     logging.error('haha!')
     pass
+
 
 class Meli(object):
 
@@ -124,6 +128,7 @@ class Meli(object):
                     causes += ' %s\n' % i.get('message', '')
             else:
                 causes = data.get('message')
+            logging.error(data)
             try:
                 ex = getattr(sys.modules[__name__], name)(causes)
             except AttributeError:
