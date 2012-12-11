@@ -42,6 +42,8 @@ class Meli(object):
     base_url = 'https://api.mercadolibre.com/'
     status_code = None
     success_status = [200, 201, 202, 204]
+    refresh_token = None
+    expires = None
 
     def __init__(self, app_id=None, app_secret=None, access_token=None):
 
@@ -122,10 +124,22 @@ class Meli(object):
 
             if 'access_token' in access_token.data.keys():
                 self.access_token = access_token.data.get('access_token')
+                self.refresh_token = access_token.data.get('refresh_token')
+                self.expires = access_token.data.get('expires_in')
             else:
                 self.access_token = None
         if self.access_token:
             return self.access_token
+
+    def refresh_access_token(self, refresh_token=None):
+        if refresh_token:
+            resposta = self.post('oauth/token', {}, grant_type='refresh_token', client_id=self.app_id, client_secret=self.app_secret, refresh_token=refresh_token)
+            if 'access_token' in resposta.data:
+                self.access_token = resposta.data.get('access_token')
+                self.expires = resposta.data.get('expires_in')
+                self.refresh_token = resposta.data.get('refresh_token')
+                return self.access_token
+        return None
 
     def set_access_token(self, token):
         self.access_token = token
@@ -174,6 +188,16 @@ class Meli(object):
         self.parser_error(data)
 
         return data
+
+    def get_login_url(self, redirect_uri=None):
+
+        base_url = 'https://auth.mercadolibre.com.ar/authorization'
+        params = {
+            'response_type': 'code',
+            'client_id': self.app_id,
+            'redirect_uri': redirect_uri
+        }
+        return base_url + '?' + urlencode(params)
 
     def show_help(self, data):
         attributes = ', '.join([k for k in data.get('attributes', {}).keys()])
