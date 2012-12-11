@@ -12,15 +12,27 @@ logging.basicConfig(filename='meli.log', level=logging.INFO)
 class ValidationError(Exception):
     pass
 
+
 class GenericError(Exception):
     pass
+
 
 class NotAllowed(Exception):
     pass
 
+
 class InternalError(Exception):
     logging.error('haha!')
     pass
+
+
+class InvalidGrant(Exception):
+    pass
+
+
+class Forbidden(Exception):
+    pass
+
 
 class Meli(object):
 
@@ -104,7 +116,14 @@ class Meli(object):
     def help(self, path, **params):
         return self.make_request('OPTIONS', path, **params)
 
-    def get_access_token(self):
+    def get_access_token(self, code=None, redirect_uri=None):
+        if code and redirect_uri:
+            access_token = self.post('oauth/token', grant_type='authorization_code', client_id=self.app_id, client_secret=self.app_secret, code=code, redirect_uri=redirect_uri)
+
+            if 'access_token' in access_token.data.keys():
+                self.access_token = access_token.data.get('access_token')
+            else:
+                self.access_token = None
         if self.access_token:
             return self.access_token
 
