@@ -3,9 +3,10 @@
 import json
 import requests
 from urllib import urlencode
+import os
 import sys
 import logging
-logging.basicConfig(filename='meli.log', level=logging.INFO)
+logging.basicConfig(filename=os.path.join(os.path.dirname(__file__), 'meli.log'), level=logging.INFO)
 
 
 # Errors...
@@ -108,7 +109,10 @@ class Meli(object):
     def help(self, path, **params):
         return self.make_request('OPTIONS', path, **params)
 
-    def get_access_token(self):
+    def get_access_token(self, code=None, redirect_uri=None):
+        if code and redirect_uri:
+            access_token = self.post('oauth/token', grant_type='authorization_code', client_id=self.app_id, client_secret=self.app_secret, code=code, redirect_uri=redirect_uri)
+            self.access_token = access_token.get('access_token')
         if self.access_token:
             return self.access_token
 
@@ -160,6 +164,15 @@ class Meli(object):
         self.parser_error(data)
 
         return data
+
+    def get_login_url(self, redirect_uri=None):
+        base_url = 'https://auth.mercadolibre.com.ar/authorization'
+        params = {
+            'response_type': 'code',
+            'client_id': self.app_id,
+            'redirect_uri': redirect_uri
+        }
+        return base_url + '?' + urlencode(params)
 
     def show_help(self, data):
         attributes = ', '.join([k for k in data.get('attributes', {}).keys()])
