@@ -39,7 +39,7 @@ class Meli(object):
     access_token = None
     app_id = None
     app_secret = None
-    base_url = 'https://api.mercadolibre.com/'
+    base_url = 'https://api.mercadolibre.com'
     status_code = None
     success_status = [200, 201, 202, 204]
     refresh_token = None
@@ -87,7 +87,8 @@ class Meli(object):
         return self
 
     def compose_url(self, path, **params):
-
+        if not path.startswith('/'):
+            path = "/%s" % path
         if params:
             if 'access' in params:
                 if self.get_access_token():
