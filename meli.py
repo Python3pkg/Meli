@@ -34,6 +34,10 @@ class Forbidden(Exception):
     pass
 
 
+class InvalidPostBody(Exception):
+    pass
+
+
 class Meli(object):
 
     access_token = None
@@ -82,6 +86,8 @@ class Meli(object):
             self.data = self.parse_response(requests.put(url, data=data))
         elif method == 'OPTIONS':
             return self.show_help(self.parse_response(requests.options(url)))
+        elif method == 'DELETE':
+            self.data = self.parse_response(requests.delete(url))
         else:
             logging.info('not yet supported')
         return self
@@ -115,6 +121,9 @@ class Meli(object):
 
     def put(self, path, data, **params):
         return self.make_request('PUT', path, data, **params)
+
+    def delete(self, path, **params):
+        return self.make_request('DELETE', path, **params)
 
     def help(self, path, **params):
         return self.make_request('OPTIONS', path, **params)
