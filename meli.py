@@ -6,6 +6,7 @@ from urllib import urlencode
 import sys
 import logging
 logging.basicConfig(filename='meli.log', level=logging.INFO)
+logging.getLogger('django').setLevel(logging.ERROR)
 
 
 # Errors...
@@ -162,9 +163,14 @@ class Meli(object):
             logging.info('Yeah, we have a error!')
             name = self.parse_exception_name(data.get('error', 'generic_error'))
             causes = ''
-            if data.get('cause', []):
+            if data.get('cause'):
+                logging.error(data.get('cause'))
                 for i in data.get('cause', []):
-                    causes += ' %s\n' % i.get('message', '')
+                    try:
+                        causes += ' %s\n' % i.get('message', '')
+                    except:
+                        causes += ' %s\n' % i
+
             else:
                 causes = data.get('message')
             try:
