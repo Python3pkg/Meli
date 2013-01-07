@@ -207,7 +207,7 @@ class Meli(object):
 
     def get_login_url(self, redirect_uri=None):
 
-        base_url = 'https://auth.mercadolibre.com.ar/authorization'
+        base_url = 'https://auth.mercadolivre.com.br/authorization'
         params = {
             'response_type': 'code',
             'client_id': self.app_id,
