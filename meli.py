@@ -23,7 +23,6 @@ class NotAllowed(Exception):
 
 
 class InternalError(Exception):
-    logging.error('haha!')
     pass
 
 
