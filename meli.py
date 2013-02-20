@@ -3,8 +3,12 @@
 import json
 import requests
 from urllib import urlencode
+
 import sys
 import logging
+from decimal import Decimal
+import datetime
+
 logging.basicConfig(filename='meli.log', level=logging.INFO)
 logging.getLogger('django').setLevel(logging.ERROR)
 
@@ -63,7 +67,22 @@ class Meli(object):
             return False
         return True
 
+    def json_handler(self, data):
+        # convert decimal to float
+        # and datetime to isoformat :)
+        json_output = {}
+        for k, v in data.items():
+            if isinstance(v, Decimal):
+                json_output[k] = float(v)
+            elif isinstance(v, datetime.datetime):
+                json_output[k] = v.isoformat()
+            else:
+                json_output[k] = v
+        return json.dumps(json_output)
+
     def make_request(self, method='GET', path=None, data=None, **params):
+        # cleaning stuff
+        self.data = {}
 
         url = self.compose_url(path, **params)
         if method == 'GET':
@@ -71,17 +90,17 @@ class Meli(object):
         elif method == 'POST':
             if isinstance(data, dict) or isinstance(data, list):
                 try:
-                    data = json.dumps(data)
-                except:
-                    logging.error('Invalid data?')
+                    data = self.json_handler(data)
+                except Exception as e:
+                    logging.error('Invalid data? (%s)' % e.message)
                     return self
             self.data = self.parse_response(requests.post(url, data=data))
         elif method == 'PUT':
             if isinstance(data, dict) or isinstance(data, list):
                 try:
-                    data = json.dumps(data)
-                except:
-                    logging.error('Invalid data?')
+                    data = self.json_handler(data)
+                except Exception as e:
+                    logging.error('Invalid data? (%s)' % e.message)
                     return self
             self.data = self.parse_response(requests.put(url, data=data))
         elif method == 'OPTIONS':
