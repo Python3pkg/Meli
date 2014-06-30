@@ -156,7 +156,7 @@ class NGMeli(object):
             self.user = User(
                 response['access_token'], response['refresh_token'],
                 response['expires_in'], self.app_id, self.app_secret)
-        return response
+        return self
 
     def get_path(self, partial_path):
         """

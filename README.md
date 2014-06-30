@@ -1,2 +1,5 @@
-This is a non-official port of the PHP-SDK Client of Mercado Libre's API. 
+NGMeli
 
+A better/easier way to use the mercadolibre's API.
+
+Use at your own risk!
