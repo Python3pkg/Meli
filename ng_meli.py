@@ -5,7 +5,7 @@ import requests
 import urllib
 
 # Some globals.
-API_PATH = 'https://api.mercadolibre.com/'
+API_PATH = 'https://api.mercadolibre.com'
 
 class User(object):
 
@@ -87,8 +87,6 @@ class Application(object):
         return self.auth_url + 'authorization?%s' % urllib.urlencode(arguments)
 
 
-
-
 class NGMeli(object):
     """Here is where the fun starts! :D"""
 
@@ -105,17 +103,22 @@ class NGMeli(object):
         if access_token and refresh_token and expires:
             self.user = User(access_token, refresh_token, expires, app_id, app_secret)
 
-    def post(self, path, data, **params):
+    def post(self, path, data=None, **params):
         return self.make_request(path, "POST", data=data, params=params)
         
     def get(self, path, **params):
         return self.make_request(path, 'GET' **params)
 
+    def put(self, path, **params):
+        return self.make_request(path, 'PUT' **params)
+
+    def delete(self, path, **params):
+        return self.make_request(path, 'DELETE' **params)
+
     def create_test_user(self, access_token=None):
         if not self.user:
             raise AttributeError('There is no user!') 
         return self.application.create_test_user(access_token=self.user.access_token)
-
 
     def make_request(self, path, method, data=None, params={}):
         """
@@ -123,11 +126,11 @@ class NGMeli(object):
         Ff theres a payload send it up, if there is a user, build the path
         with the access_token GET parameter
         """
-        total_path = self.get_path(partial_path)
+        total_path = self.get_path(path)
         arguments = self.get_arguments(params, data)
         if self.user:
             path += self.user.url_serialize()
-        response = getattr(request, method.lower())(path, total_path, **arguments)
+        response = getattr(requests, method.lower())(total_path, **arguments)
         return response.json()
 
     def get_arguments(self, params, data):
@@ -137,6 +140,23 @@ class NGMeli(object):
         if params:
             arguments.update(params)
         return arguments
+
+    def user_from_code(self, code, url_redirect):
+        # oauth/token
+        arguments = {
+            'grant_type': 'authorization_code',
+            'client_id': self.application.app_id,
+            'client_secret': self.application.app_secret,
+            'code': code,
+            'redirect_uri': url_redirect
+        }
+        response = self.make_request(
+            '/oauth/token?%s' % urllib.urlencode(arguments), 'POST')
+        if 'access_token' in response:
+            self.user = User(
+                response['access_token'], response['refresh_token'],
+                response['expires_in'], self.app_id, self.app_secret)
+        return response
 
     def get_path(self, partial_path):
         """

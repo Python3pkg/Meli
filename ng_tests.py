@@ -41,6 +41,16 @@ class RequestCreateUserMock(RequestsMock):
             "site_status": "active"
         }
 
+class RequestAuthorizationMock(RequestsMock):
+
+    def mock(self):
+        return { 
+            "access_token" : "YOUR_NEW_ACCESS_TOKEN",
+            "token_type" : "bearer",
+            "expires_in" : 10800,
+            "refresh_token" : "YOUR_REFRESH_TOKEN",
+            "scope" : "write read offline_access"
+        }
 
 class NGMeliTest(unittest.TestCase):
 
@@ -78,11 +88,26 @@ class NGMeliTest(unittest.TestCase):
         user.should.have.key('site_status')
         user.should.have.key('nickname')
 
-    def test_autorize_url(self):
+    def test_authorize_url(self):
         url_should = ('http://auth.mercadolivre.com.br/'
                       'authorization?response_type='
                       'code&client_id=%s' % self.app_id)
         self.ngm.application.authorize_url().should.be.equal(url_should)
+
+    def test_authorization_code_invalid(self):
+        code = 'ABOUDHOAUSHDOUASHDOUAHDOUA'
+        self.ngm.user = None
+        self.ngm.user_from_code(code=code, url_redirect='http://google.com')
+        self.ngm.user.should.be.none
+
+    def test_authorization_code_valid(self):
+        code = '9jas0dja0sdj0dkdasd-1=2-31=-2#@sasdasd-0'
+        ng_meli.requests = RequestAuthorizationMock()
+        self.ngm.user = None
+        self.ngm.user_from_code(code=code, url_redirect='http://google.com')
+        self.ngm.user.should.have.property('_access_token')
+        self.ngm.user.should.have.property('expires')
+        self.ngm.user.should.have.property('refresh_token')
 
     def tear_down(self):
         ng_meli.requests = requests
