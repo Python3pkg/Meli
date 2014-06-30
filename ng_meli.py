@@ -58,12 +58,11 @@ class User(object):
         return self._access_token
 
 
-
-
 class Application(object):
 
     app_id = None
     app_secret = None
+    auth_url = 'http://auth.mercadolivre.com.br/'
 
     def __init__(self, app_id, app_secret):
         self.app_id = app_id
@@ -77,6 +76,16 @@ class Application(object):
             API_PATH + 'users/test_user?%s' % urllib.urlencode({'access_token': access_token}),
             data=payload)
         return response.json()
+
+    def authorize_url(self):
+        # For now, only suports mercadolivre.com.br, if you want somehow the login page
+        # on your language, pull request is your friend.
+        arguments = {
+            'response_type':'code',
+            'client_id': self.app_id
+        }
+        return self.auth_url + 'authorization?%s' % urllib.urlencode(arguments)
+
 
 
 
@@ -131,7 +140,7 @@ class NGMeli(object):
 
     def get_path(self, partial_path):
         """
-        Thou shalt not leave the path
+        Thou shalt not leave the path.
         """
         if not partial_path.startswith('/'):
             partial_path = '/' + partial_path

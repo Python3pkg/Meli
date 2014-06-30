@@ -46,8 +46,9 @@ class NGMeliTest(unittest.TestCase):
 
     def setUp(self):
         self.access_token = 'OUAHSODUHAOUDHAOUSHDAUOS'
+        self.app_id = '123'
         self.ngm = ng_meli.NGMeli(
-            app_id='123',
+            app_id=self.app_id,
             app_secret='123123',
             access_token=self.access_token,
             refresh_token='OUAHSODUHAOUDHAOUSHDAUOS',
@@ -77,6 +78,11 @@ class NGMeliTest(unittest.TestCase):
         user.should.have.key('site_status')
         user.should.have.key('nickname')
 
+    def test_autorize_url(self):
+        url_should = ('http://auth.mercadolivre.com.br/'
+                      'authorization?response_type='
+                      'code&client_id=%s' % self.app_id)
+        self.ngm.application.authorize_url().should.be.equal(url_should)
 
     def tear_down(self):
         ng_meli.requests = requests
