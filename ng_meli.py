@@ -40,10 +40,13 @@ class User(object):
             'grant_type': 'refresh_token',
             'client_id': self.client_id,
             'client_secret': self.client_secret,
-            'refresh_token': refresh_token
+            'refresh_token': self.refresh_token
         }
-        response = request.post(API_PATH + 'oauth/token' + self.url_serialize(), data=payload)
-        return response.json()
+        response = requests.post(API_PATH + 'oauth/token' + self.url_serialize(), data=payload)
+        data = response.json()
+        self._access_token = data['access_token']
+        self._refresh_token = data['refresh_token']
+        return data
 
     @property
     def access_token(self):
@@ -55,6 +58,8 @@ class User(object):
         return self._access_token
 
 
+
+
 class Application(object):
 
     app_id = None
@@ -64,8 +69,15 @@ class Application(object):
         self.app_id = app_id
         self.app_secret = app_secret
 
-    def create_test_user(self):
-        return {}
+    def create_test_user(self, access_token):
+        payload = {
+            'site_id': 'MLB'
+        }
+        response = requests.post(
+            API_PATH + 'users/test_user?%s' % urllib.urlencode({'access_token': access_token}),
+            data=payload)
+        return response.json()
+
 
 
 class NGMeli(object):
@@ -89,6 +101,12 @@ class NGMeli(object):
         
     def get(self, path, **params):
         return self.make_request(path, 'GET' **params)
+
+    def create_test_user(self, access_token=None):
+        if not self.user:
+            raise AttributeError('There is no user!') 
+        return self.application.create_test_user(access_token=self.user.access_token)
+
 
     def make_request(self, path, method, data=None, params={}):
         """
