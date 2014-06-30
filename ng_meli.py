@@ -14,13 +14,13 @@ class User(object):
         self._refresh_token = refresh_token
         self.expires = expires
         self.client_id = client_id
-        self.client_secret
+        self.client_secret = client_secret
 
-    def is_valid(self):
+    def valid(self):
         """
         The access_token is valid?
         """
-        if self.expires and self.expires < datetime.now():
+        if self.expires and self.expires > datetime.now():
             return True
         return False
 
@@ -28,7 +28,7 @@ class User(object):
         """
         Build the necessary data to make a valid url, ain't that a bitch?
         """
-        return '?%s' % urllib.urlencode(access_token=self._access_token)
+        return '?%s' % urllib.urlencode({"access_token": self._access_token})
 
 
     def refresh_token(self):
@@ -50,7 +50,7 @@ class User(object):
         """
         Return the access token if it's valid, otherwise refresh it.
         """
-        if not self.is_valid():
+        if not self.valid():
             self.refresh_token()
         return self._access_token
 
@@ -82,7 +82,7 @@ class NGMeli(object):
 
         self.application = Application(app_id, app_secret)
         if access_token and refresh_token and expires:
-            self.user = User(access_token, refresh_token, expires)
+            self.user = User(access_token, refresh_token, expires, app_id, app_secret)
 
     def post(self, path, data, **params):
         return self.make_request(path, "POST", data=data, params=params)
