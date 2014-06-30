@@ -1,0 +1,4 @@
+sure
+nosetests
+six
+mock
