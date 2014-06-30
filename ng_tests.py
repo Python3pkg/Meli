@@ -43,14 +43,25 @@ class RequestCreateUserMock(RequestsMock):
 
 class RequestAuthorizationMock(RequestsMock):
 
+    def __init__(self, valid=True):
+        self.valid = valid
+
     def mock(self):
-        return { 
-            "access_token" : "YOUR_NEW_ACCESS_TOKEN",
-            "token_type" : "bearer",
-            "expires_in" : 10800,
-            "refresh_token" : "YOUR_REFRESH_TOKEN",
-            "scope" : "write read offline_access"
-        }
+        if self.valid:
+            return { 
+                "access_token" : "YOUR_NEW_ACCESS_TOKEN",
+                "token_type" : "bearer",
+                "expires_in" : 10800,
+                "refresh_token" : "YOUR_REFRESH_TOKEN",
+                "scope" : "write read offline_access"
+            }
+        else:
+            return {
+                u'cause': [],
+                u'error': u'invalid_client',
+                u'message': u'invalid client_id 123 or client_secret.',
+                u'status': 400
+            }
 
 class NGMeliTest(unittest.TestCase):
 
@@ -80,6 +91,12 @@ class NGMeliTest(unittest.TestCase):
         self.ngm.user.expires = datetime.now() - timedelta(days=1)
         self.ngm.user.access_token.should.be.equal('MAIS_FAKE_QUE_A_DILMA')
 
+    def test_create_test_user_without_user(self):
+        ng_meli.requests = RequestCreateUserMock()
+        self.ngm.user = None
+        with self.assertRaises(AttributeError):
+            user = self.ngm.create_test_user()
+
     def test_create_test_user(self):
         ng_meli.requests = RequestCreateUserMock()
         user = self.ngm.create_test_user()
@@ -97,6 +114,7 @@ class NGMeliTest(unittest.TestCase):
     def test_authorization_code_invalid(self):
         code = 'ABOUDHOAUSHDOUASHDOUAHDOUA'
         self.ngm.user = None
+        ng_meli.requests = RequestAuthorizationMock(valid=False)
         self.ngm.user_from_code(code=code, url_redirect='http://google.com')
         self.ngm.user.should.be.none
 
