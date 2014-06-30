@@ -48,14 +48,17 @@ class User(object):
         self._refresh_token = data['refresh_token']
         return data
 
+
     @property
     def access_token(self):
         """
         Return the access token if it's valid, otherwise refresh it.
         """
         if not self.valid():
-            self.refresh_token()
-        return self._access_token
+            new = self.refresh_token()
+        else:
+            new = False
+        return new, self._access_token
 
 
 class Application(object):

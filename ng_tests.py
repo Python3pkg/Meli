@@ -33,9 +33,11 @@ class NGMeliTest(unittest.TestCase):
     def test_refresh_token(self):
         ng_meli.requests = mock_this.RequestRefreshTokenMock()
         # vamos invalidar o expires do usuário
-        self.ngm.user.access_token.should.be.equal(self.access_token) 
+        self.ngm.user.access_token[1].should.be.equal(self.access_token) 
+        self.ngm.user.access_token[0].should.be.falsy
         self.ngm.user.expires = datetime.now() - timedelta(days=1)
-        self.ngm.user.access_token.should.be.equal('MAIS_FAKE_QUE_A_DILMA')
+        self.ngm.user.access_token[1].should.be.equal('MAIS_FAKE_QUE_A_DILMA')
+        self.ngm.user.access_token[0].should.be.a(dict)
 
     def test_create_test_user_without_user(self):
         ng_meli.requests = mock_this.RequestCreateUserMock()
@@ -72,6 +74,7 @@ class NGMeliTest(unittest.TestCase):
         self.ngm.user.should.have.property('_access_token')
         self.ngm.user.should.have.property('expires')
         self.ngm.user.should.have.property('refresh_token')
+
 
     def tear_down(self):
         ng_meli.requests = requests
