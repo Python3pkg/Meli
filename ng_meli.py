@@ -123,7 +123,7 @@ class NGMeli(object):
     def make_request(self, path, method, data=None, params={}):
         """
         Build up the absolute path, make the request and returns it!
-        Ff theres a payload send it up, if there is a user, build the path
+        If theres a payload send it up, if there is a user, build the path
         with the access_token GET parameter
         """
         total_path = self.get_path(path)
