@@ -1,4 +1,3 @@
 sure
-nosetests
 six
 mock
