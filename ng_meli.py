@@ -98,9 +98,11 @@ class NGMeli(object):
 
     user = None
     application = None
+    VERSION = 'NGMeli: 0.2.0v'
 
     def __init__(self, app_id, app_secret,
                  access_token=None, refresh_token=None, expires=None):
+
 
         self.application = Application(app_id, app_secret)
         if access_token and refresh_token and expires:
@@ -110,13 +112,13 @@ class NGMeli(object):
         return self.make_request(path, "POST", data=data, params=params)
         
     def get(self, path, **params):
-        return self.make_request(path, 'GET' **params)
+        return self.make_request(path, 'GET', params=params)
 
-    def put(self, path, **params):
-        return self.make_request(path, 'PUT' **params)
+    def put(self, path, data=None, **params):
+        return self.make_request(path, 'PUT', data=data, params=params)
 
     def delete(self, path, **params):
-        return self.make_request(path, 'DELETE' **params)
+        return self.make_request(path, 'DELETE', params=params)
 
     def create_test_user(self, access_token=None):
         if not self.user:
@@ -131,13 +133,17 @@ class NGMeli(object):
         """
         total_path = self.get_path(path)
         arguments = self.get_arguments(params, data)
-        if self.user:
-            path += self.user.url_serialize()
         response = getattr(requests, method.lower())(total_path, **arguments)
         return response.json()
 
     def get_arguments(self, params, data):
-        arguments = {}
+        arguments = {
+            'headers': {
+                'Accept': 'application/json',
+                'User-Agent':self.VERSION,
+                'Content-type':'application/json'
+            }
+        }
         if data:
             arguments['data'] = data
         if params:
@@ -167,6 +173,8 @@ class NGMeli(object):
         """
         if not partial_path.startswith('/'):
             partial_path = '/' + partial_path
+        if self.user:
+            partial_path += '?access_token=' + self.user._access_token
         return API_PATH + partial_path 
 
 
