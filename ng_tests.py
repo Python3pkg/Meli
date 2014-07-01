@@ -68,7 +68,7 @@ class NGMeliTest(unittest.TestCase):
 
     def test_authorization_code_valid(self):
         code = '9jas0dja0sdj0dkdasd-1=2-31=-2#@sasdasd-0'
-        ng_meli.requests = mock_this.RequestAuthorizationMock()
+        ng_meli.requests = mock_this.RequestAuthorizationMock(valid=True)
         self.ngm.user = None
         self.ngm.user_from_code(code=code, url_redirect='http://google.com')
         self.ngm.user.should.have.property('_access_token')

@@ -98,7 +98,11 @@ class NGMeli(object):
 
     user = None
     application = None
-    VERSION = 'NGMeli: 0.2.0v'
+    HEADERS = {
+        'Accept': 'application/json',
+        'User-Agent': 'NGMeli: 0.2.0v',
+        'Content-type':'application/json'
+    }
 
     def __init__(self, app_id, app_secret,
                  access_token=None, refresh_token=None, expires=None):
@@ -125,30 +129,19 @@ class NGMeli(object):
             raise AttributeError('There is no user!') 
         return self.application.create_test_user(access_token=self.user.access_token)
 
-    def make_request(self, path, method, data=None, params={}):
+    def make_request(self, path, method, data={}, params={}):
         """
         Build up the absolute path, make the request and returns it!
         If theres a payload send it up, if there is a user, build the path
         with the access_token GET parameter
         """
         total_path = self.get_path(path)
-        arguments = self.get_arguments(params, data)
-        response = getattr(requests, method.lower())(total_path, **arguments)
+        if self.user:
+            params['access_token'] = self.user.access_token
+        response = getattr(requests, method.lower())(
+            total_path, data=data, params=params, headers=self.HEADERS)
         return response.json()
 
-    def get_arguments(self, params, data):
-        arguments = {
-            'headers': {
-                'Accept': 'application/json',
-                'User-Agent':self.VERSION,
-                'Content-type':'application/json'
-            }
-        }
-        if data:
-            arguments['data'] = data
-        if params:
-            arguments.update(params)
-        return arguments
 
     def user_from_code(self, code, url_redirect):
         # oauth/token
@@ -160,7 +153,7 @@ class NGMeli(object):
             'redirect_uri': url_redirect
         }
         response = self.make_request(
-            '/oauth/token?%s' % urllib.urlencode(arguments), 'POST')
+            '/oauth/token', 'POST', params=arguments)
         if 'access_token' in response:
             self.user = User(
                 response['access_token'], response['refresh_token'],
@@ -173,8 +166,6 @@ class NGMeli(object):
         """
         if not partial_path.startswith('/'):
             partial_path = '/' + partial_path
-        if self.user:
-            partial_path += '?access_token=' + self.user._access_token
         return API_PATH + partial_path 
 
 
