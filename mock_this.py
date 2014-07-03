@@ -6,6 +6,7 @@ here all the mocking shall be done!
 
 
 class RequestsMock(object):
+    text = True
 
     def post(self, *args, **kwargs):
         return self

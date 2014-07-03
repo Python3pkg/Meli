@@ -143,7 +143,8 @@ class NGMeli(object):
             data = json.dumps(data)
         response = getattr(requests, method.lower())(
             total_path, data=data, params=params, headers=self.HEADERS)
-        return response.json()
+        if response.text:
+            return response.json()
 
 
     def user_from_code(self, code, url_redirect):
