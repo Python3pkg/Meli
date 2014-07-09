@@ -20,7 +20,10 @@ class User(object):
     def __init__(self, access_token, refresh_token, expires, client_id, client_secret):
         self._access_token = access_token
         self._refresh_token = refresh_token
-        self.expires = expires
+        if isinstance(expires, basestring):
+            self.expires = datetime.strptime(expires, '%Y-%m-%dT%H:%M:%S.%fZ')
+        else:
+            self.expires = expires
         self.client_id = client_id
         self.client_secret = client_secret
 
