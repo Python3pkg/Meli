@@ -9,6 +9,9 @@ from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+import ssl
+ssl.PROTOCOL_SSLv23 = ssl.PROTOCOL_TLSv1
+
 # Some globals.
 API_PATH = 'https://api.mercadolibre.com'
 
@@ -101,7 +104,7 @@ class NGMeli(object):
     application = None
     HEADERS = {
         'Accept': 'application/json',
-        'User-Agent': 'NGMeli: 0.2.0v',
+        'User-Agent': 'NGMeli-0.3.0v',
         'Content-type':'application/json'
     }
 
@@ -129,6 +132,9 @@ class NGMeli(object):
         if not self.user:
             raise AttributeError('There is no user!') 
         return self.application.create_test_user(access_token=self.user.access_token)
+
+    def get_user_information(self):
+        return self.get('users/me')
 
     def make_request(self, path, method, data=None, params={}):
         """
