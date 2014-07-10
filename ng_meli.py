@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import requests
 import urllib
+import json
+
+from datetime import datetime
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+import ssl
+ssl.PROTOCOL_SSLv23 = ssl.PROTOCOL_TLSv1
 
 # Some globals.
 API_PATH = 'https://api.mercadolibre.com'
@@ -12,7 +20,7 @@ class User(object):
     def __init__(self, access_token, refresh_token, expires, client_id, client_secret):
         self._access_token = access_token
         self._refresh_token = refresh_token
-        self.expires = expires
+        self.expires_date(expires)
         self.client_id = client_id
         self.client_secret = client_secret
 
@@ -23,6 +31,12 @@ class User(object):
         if self.expires and self.expires > datetime.now():
             return True
         return False
+
+    def expires_date(self, expires):
+        if isinstance(expires, basestring):
+            self.expires = datetime.strptime(expires, '%Y-%m-%dT%H:%M:%S.%fZ')
+        else:
+            self.expires = expires
 
     def url_serialize(self):
         """
@@ -46,19 +60,16 @@ class User(object):
         data = response.json()
         self._access_token = data['access_token']
         self._refresh_token = data['refresh_token']
+        self.expires_date(data['expires_in'])
         return data
 
 
     @property
     def access_token(self):
         """
-        Return the access token if it's valid, otherwise refresh it.
+        Return the access token if it's valid.
         """
-        if not self.valid():
-            new = self.refresh_token()
-        else:
-            new = False
-        return new, self._access_token
+        return self._access_token
 
 
 class Application(object):
@@ -100,7 +111,7 @@ class NGMeli(object):
     application = None
     HEADERS = {
         'Accept': 'application/json',
-        'User-Agent': 'NGMeli: 0.2.0v',
+        'User-Agent': 'NGMeli-0.3.0v',
         'Content-type':'application/json'
     }
 
@@ -129,7 +140,10 @@ class NGMeli(object):
             raise AttributeError('There is no user!') 
         return self.application.create_test_user(access_token=self.user.access_token)
 
-    def make_request(self, path, method, data={}, params={}):
+    def get_user_information(self):
+        return self.get('users/me')
+
+    def make_request(self, path, method, data=None, params={}):
         """
         Build up the absolute path, make the request and returns it!
         If theres a payload send it up, if there is a user, build the path
@@ -137,10 +151,13 @@ class NGMeli(object):
         """
         total_path = self.get_path(path)
         if self.user:
-            params['access_token'] = self.user.access_token
+            params['access_token'] = self.user._access_token
+        if data:
+            data = json.dumps(data)
         response = getattr(requests, method.lower())(
             total_path, data=data, params=params, headers=self.HEADERS)
-        return response.json()
+        if response.text:
+            return response.json()
 
 
     def user_from_code(self, code, url_redirect):
