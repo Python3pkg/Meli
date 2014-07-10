@@ -25,7 +25,8 @@ class RequestRefreshTokenMock(RequestsMock):
     def mock(self):
         return {
             'access_token': self.access_token,
-            'refresh_token': 'NEW'
+            'refresh_token': 'NEW',
+            'expires_in': 1999
         }
 
 

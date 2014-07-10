@@ -20,10 +20,7 @@ class User(object):
     def __init__(self, access_token, refresh_token, expires, client_id, client_secret):
         self._access_token = access_token
         self._refresh_token = refresh_token
-        if isinstance(expires, basestring):
-            self.expires = datetime.strptime(expires, '%Y-%m-%dT%H:%M:%S.%fZ')
-        else:
-            self.expires = expires
+        self.expires_date(expires)
         self.client_id = client_id
         self.client_secret = client_secret
 
@@ -34,6 +31,12 @@ class User(object):
         if self.expires and self.expires > datetime.now():
             return True
         return False
+
+    def expires_date(self, expires):
+        if isinstance(expires, basestring):
+            self.expires = datetime.strptime(expires, '%Y-%m-%dT%H:%M:%S.%fZ')
+        else:
+            self.expires = expires
 
     def url_serialize(self):
         """
@@ -57,6 +60,7 @@ class User(object):
         data = response.json()
         self._access_token = data['access_token']
         self._refresh_token = data['refresh_token']
+        self.expires_date(data['expires_in'])
         return data
 
 
