@@ -33,13 +33,13 @@ def read(fname):
 
 setup(
     name='ngmeli',
-    version='0.0.2',
+    version='0.0.3',
     url='https://github.com/jdsolucoes/Meli',
     license='MIT',
     description='Simple client for MercadoLibre\'s API.',
     author=u'Jefferson Daniel',
     author_email='jd.solucoes@gmail.com',
-    long_description=read('README.md'),
+    long_description=read('README'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
