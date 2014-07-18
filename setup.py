@@ -33,7 +33,7 @@ def read(fname):
 
 setup(
     name='ngmeli',
-    version='0.0.4',
+    version='0.0.5',
     url='https://github.com/jdsolucoes/Meli',
     license='MIT',
     description='Simple client for MercadoLibre\'s API.',
