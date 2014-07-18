@@ -56,7 +56,7 @@ class User(object):
             'client_secret': self.client_secret,
             'refresh_token': self.refresh_token
         }
-        response = requests.post(API_PATH + 'oauth/token' + self.url_serialize(), data=payload)
+        response = requests.post(API_PATH + '//oauth/token' + self.url_serialize(), data=payload)
         data = response.json()
         self._access_token = data['access_token']
         self._refresh_token = data['refresh_token']
@@ -87,17 +87,19 @@ class Application(object):
             'site_id': 'MLB'
         }
         response = requests.post(
-            API_PATH + 'users/test_user?%s' % urllib.urlencode({'access_token': access_token}),
+            API_PATH + '/users/test_user?%s' % urllib.urlencode({'access_token': access_token}),
             data=payload)
         return response.json()
 
-    def authorize_url(self):
+    def authorize_url(self, redirect_uri=None):
         # For now, only suports mercadolivre.com.br, if you want somehow the login page
         # on your language, pull request is your friend.
         arguments = {
             'response_type':'code',
             'client_id': self.app_id
         }
+        if redirect_uri:
+            arguments['redirect_uri'] = redirect_uri
         return self.auth_url + 'authorization?%s' % urllib.urlencode(arguments)
 
 

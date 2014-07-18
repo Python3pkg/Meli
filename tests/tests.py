@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import ng_meli
+from ng_meli import ng_meli
 import sure
 import requests
 import mock_this
