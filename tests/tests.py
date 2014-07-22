@@ -75,6 +75,13 @@ class NGMeliTest(unittest.TestCase):
         self.ngm.user.should.have.property('expires')
         self.ngm.user.should.have.property('refresh_token')
 
+    def test_last_path(self):
+
+        ng_meli.requests = mock_this.RequestAuthorizationMock(valid=True)
+        self.ngm.get('a/crazy/path')
+        self.ngm.last_access().should.be.equal('https://api.mercadolibre.com/a/crazy/path')
+
+
 
     def tear_down(self):
         ng_meli.requests = requests

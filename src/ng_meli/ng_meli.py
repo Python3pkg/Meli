@@ -108,6 +108,7 @@ class NGMeli(object):
 
     app_id = None
     app_secret = None
+    access_history = []
 
     user = None
     application = None
@@ -145,6 +146,12 @@ class NGMeli(object):
     def get_user_information(self):
         return self.get('users/me')
 
+    def last_access(self):
+        if self.access_history:
+            return self.access_history[-1]
+        return None
+
+
     def make_request(self, path, method, data=None, params={}):
         """
         Build up the absolute path, make the request and returns it!
@@ -152,6 +159,7 @@ class NGMeli(object):
         with the access_token GET parameter
         """
         total_path = self.get_path(path)
+        self.access_history.append(total_path)
         if self.user:
             params['access_token'] = self.user._access_token
         if data:
