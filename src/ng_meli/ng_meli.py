@@ -54,9 +54,9 @@ class User(object):
             'grant_type': 'refresh_token',
             'client_id': self.client_id,
             'client_secret': self.client_secret,
-            'refresh_token': self.refresh_token
+            'refresh_token': self._refresh_token
         }
-        response = requests.post(API_PATH + '//oauth/token' + self.url_serialize(), data=payload)
+        response = requests.post(API_PATH + '/oauth/token', params=payload)
         data = response.json()
         self._access_token = data['access_token']
         self._refresh_token = data['refresh_token']
