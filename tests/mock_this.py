@@ -58,8 +58,8 @@ class RequestAuthorizationMock(RequestsMock):
             }
         else:
             return {
-                u'cause': [],
-                u'error': u'invalid_client',
-                u'message': u'invalid client_id 123 or client_secret.',
-                u'status': 400
+                'cause': [],
+                'error': 'invalid_client',
+                'message': 'invalid client_id 123 or client_secret.',
+                'status': 400
             }

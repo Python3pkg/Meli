@@ -37,7 +37,7 @@ setup(
     url='https://github.com/jdsolucoes/Meli',
     license='MIT',
     description='Simple client for MercadoLibre\'s API.',
-    author=u'Jefferson Daniel',
+    author='Jefferson Daniel',
     author_email='jd.solucoes@gmail.com',
     long_description=read('README'),
     classifiers=[

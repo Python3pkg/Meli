@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import requests
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import json
 
 from datetime import datetime
@@ -33,7 +33,7 @@ class User(object):
         return False
 
     def expires_date(self, expires):
-        if isinstance(expires, basestring):
+        if isinstance(expires, str):
             self.expires = datetime.strptime(expires, '%Y-%m-%dT%H:%M:%S.%fZ')
         else:
             self.expires = expires
@@ -42,7 +42,7 @@ class User(object):
         """
         Build the necessary data to make a valid url, ain't that a bitch?
         """
-        return '?%s' % urllib.urlencode({"access_token": self._access_token})
+        return '?%s' % urllib.parse.urlencode({"access_token": self._access_token})
 
 
     def refresh_token(self):
@@ -87,7 +87,7 @@ class Application(object):
             'site_id': 'MLB'
         }
         response = requests.post(
-            API_PATH + '/users/test_user?%s' % urllib.urlencode({'access_token': access_token}),
+            API_PATH + '/users/test_user?%s' % urllib.parse.urlencode({'access_token': access_token}),
             data=payload)
         return response.json()
 
@@ -100,7 +100,7 @@ class Application(object):
         }
         if redirect_uri:
             arguments['redirect_uri'] = redirect_uri
-        return self.auth_url + 'authorization?%s' % urllib.urlencode(arguments)
+        return self.auth_url + 'authorization?%s' % urllib.parse.urlencode(arguments)
 
 
 class NGMeli(object):

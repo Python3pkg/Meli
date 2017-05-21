@@ -1,1 +1,1 @@
-from ng_meli import NGMeli
+from .ng_meli import NGMeli
